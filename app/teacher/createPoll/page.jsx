@@ -88,7 +88,7 @@ export default function CreatePoll() {
           <div className="mb-4 flex items-center justify-between">
             <CustomBadge />
             <Button
-              onClick={router.push("/teacher/dashboard")}
+              onClick={() => router.push("/teacher/dashboard")}
               className="pt-2"
             >
               <Eye /> View History
