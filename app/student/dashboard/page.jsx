@@ -225,7 +225,9 @@ function PollView({
                         <span
                           className={cn(
                             "text-custom-white text-lg font-semibold ml-10",
-                            percentage < 10 && "text-custom-black"
+                            showResults && percentage < 10
+                              ? "text-custom-black"
+                              : "text-custom-white"
                           )}
                         >
                           {option.option}
@@ -234,9 +236,11 @@ function PollView({
                     </div>
                   </div>
                   <div className="w-12 text-right">
-                    <span className="text-custom-black font-medium">
-                      {percentage}%
-                    </span>
+                    {showResults && (
+                      <span className="text-custom-black font-medium">
+                        {percentage}%
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
