@@ -11,43 +11,64 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User } from "lucide-react";
 import BackButton from "@/components/common/backButton";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/reducers/auth";
+import { toast } from "sonner";
 
 export default function StudentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const dispatch = useDispatch();
+  const router = useRouter();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate login process
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Here you would typically handle authentication
-    console.log("Student login:", { email, password });
-
-    setIsLoading(false);
-    // Redirect to student dashboard after successful login
-    // router.push("/student/dashboard")
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, role: "student" }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+      dispatch(setUser(data));
+      localStorage.setItem("token", data.token);
+      toast("Login successful");
+      setIsLoading(false);
+      router.push("/student/dashboard");
+    } catch (error) {
+      setIsLoading(false);
+      toast(error.message || "An error occurred during login");
+      console.error("Login error:", error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-custom-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <BackButton />
 
         <Card className="shadow-lg">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-blue-600" />
+            <div className="mx-auto w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
+              <User className="w-6 h-6 text-secondary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900">
+              <CardTitle className="text-2xl font-bold text-custom-gray">
                 Student Login
               </CardTitle>
-              <p className="text-gray-600 mt-2">
-                Sign in to access the polling system
+              <p className="text-custom-gray/50 text-sm mt-2">
+                If you’re a student, you’ll be able to submit your answers,
+                participate in live polls, and see how your responses compare
+                with your classmates
               </p>
             </div>
           </CardHeader>
@@ -83,7 +104,7 @@ export default function StudentLogin() {
               <div className="flex items-center justify-between">
                 <Link
                   href="#"
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-secondary hover:text-secondary/80"
                 >
                   Forgot password?
                 </Link>
@@ -91,7 +112,7 @@ export default function StudentLogin() {
 
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 h-11"
+                className="w-full h-11"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign In"}
@@ -103,7 +124,7 @@ export default function StudentLogin() {
                 Don't have an account?{" "}
                 <Link
                   href="/auth/students/signup"
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-secondary hover:text-secondary/80 font-medium"
                 >
                   Sign up
                 </Link>

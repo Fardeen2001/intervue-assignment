@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, GraduationCap } from "lucide-react";
 import BackButton from "@/components/common/backButton";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/reducers/auth";
 
 export default function TeacherSignup() {
   const [formData, setFormData] = useState({
@@ -23,7 +26,7 @@ export default function TeacherSignup() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -35,39 +38,62 @@ export default function TeacherSignup() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      toast("Passwords don't match!");
       return;
     }
 
     setIsLoading(true);
-
-    // Simulate signup process
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Here you would typically handle user registration
-    console.log("Teacher signup:", formData);
-
-    setIsLoading(false);
-    // Redirect to login after successful signup
-    router.push("/teacher/login");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            institution: formData.institution,
+            role: "teacher",
+          }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+      dispatch(setUser(data));
+      localStorage.setItem("token", data.token);
+      toast("Teacher signup successful");
+      setIsLoading(false);
+      router.push("/teacher/createPoll");
+    } catch (error) {
+      setIsLoading(false);
+      toast(error.message || "An error occurred during login");
+      console.error("Login error:", error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-custom-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <BackButton />
 
         <Card className="shadow-lg">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-purple-600" />
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <GraduationCap className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900">
+              <CardTitle className="text-2xl font-bold text-custom-gray">
                 Teacher Sign Up
               </CardTitle>
-              <p className="text-gray-600 mt-2">
-                Create your account to manage polls
+              <p className="text-custom-gray/60 mt-2">
+                Signup your account to create, manage polls and evaulate
+                students
               </p>
             </div>
           </CardHeader>
@@ -161,7 +187,7 @@ export default function TeacherSignup() {
 
               <Button
                 type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 h-11"
+                className="w-full h-11"
                 disabled={isLoading}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
@@ -169,11 +195,11 @@ export default function TeacherSignup() {
             </form>
 
             <div className="text-center">
-              <p className="text-gray-600">
+              <p className="text-custom-gray/60">
                 Already have an account?{" "}
                 <Link
                   href="/auth/teacher/login"
-                  className="text-purple-600 hover:text-purple-800 font-medium"
+                  className="text-primary hover:text-primary/80 font-medium"
                 >
                   Sign in
                 </Link>
