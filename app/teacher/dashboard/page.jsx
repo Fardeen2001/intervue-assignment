@@ -56,7 +56,7 @@ export default function TeacherDashboard() {
           View <span className="font-bold">Poll History</span>
         </h2>
 
-        {polls.length > 0 ? (
+        {polls?.length > 0 ? (
           <PollHistory polls={polls} />
         ) : (
           <div className="flex flex-col items-center justify-center my-4 mx-auto">
