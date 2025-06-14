@@ -56,7 +56,20 @@ export default function TeacherDashboard() {
           View <span className="font-bold">Poll History</span>
         </h2>
 
-        <PollHistory polls={polls} />
+        {polls.length > 0 ? (
+          <PollHistory polls={polls} />
+        ) : (
+          <div className="flex flex-col items-center justify-center my-4 mx-auto">
+            <h2>There are no poll created yet</h2>
+            <Button
+              onClick={handleCreateNewPoll}
+              className="bg-primary hover:bg-primary/70 text-custom-white flex items-center gap-2"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Ask a New Question
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );
