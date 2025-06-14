@@ -59,7 +59,7 @@ export default function TeacherDashboard() {
         {polls?.length > 0 ? (
           <PollHistory polls={polls} />
         ) : (
-          <div className="flex flex-col items-center justify-center my-4 mx-auto">
+          <div className="flex flex-col items-center justify-center my-4 mx-auto gap-4">
             <h2>There are no poll created yet</h2>
             <Button
               onClick={handleCreateNewPoll}
